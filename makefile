@@ -6,7 +6,7 @@ CFLAGS=-mthumb \
 	-std=gnu11\
 	-O0 \
 	-Wall
-LFLAGS= -nostdlib -T Linker_Script.ld -WL,-Map=final.map
+LFLAGS= -nostdlib -T Linker_Script.ld -Wl,-Map=final.map
 SOURCES= 	./led.c \
 		./main.c \
 		./STM32_Startup.c
