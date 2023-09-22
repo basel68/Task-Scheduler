@@ -7,7 +7,7 @@
 #define STACK_START SRAM_END
 
 /* function prototypes of STM32F407x system exception and IRQ handlers */
-
+void Default_Handler(void);
 void Reset_Handler(void);
 void NMI_Handler 					(void) __attribute__ ((weak, alias("Default_Handler")));
 void HardFault_Handler 				(void) __attribute__ ((weak, alias("Default_Handler")));
@@ -99,7 +99,8 @@ void DCMI_IRQHandler             	(void) __attribute__ ((weak, alias("Default_Ha
 void CRYP_IRQHandler             	(void) __attribute__ ((weak, alias("Default_Handler")));
 void HASH_RNG_IRQHandler         	(void) __attribute__ ((weak, alias("Default_Handler")));
 void FPU_IRQHandler              	(void) __attribute__ ((weak, alias("Default_Handler"))); 
-uint32_t vectors[] __attribute__((section(".isr_vector")){
+
+__attribute__((section(".isr_vector"))) uint32_t vectors[]={
 	STACK_START,
 	 (uint32_t)Reset_Handler,                  // Reset handler
     (uint32_t)NMI_Handler,                    // NMI handler
@@ -198,13 +199,7 @@ uint32_t vectors[] __attribute__((section(".isr_vector")){
     (uint32_t)DCMI_IRQHandler,                // 77 DCMI
     (uint32_t)CRYP_IRQHandler,                // 78 CRYP crypto
     (uint32_t)HASH_RNG_IRQHandler,            // 79 Hash and RNG
-    (uint32_t)FPU_IRQHandler 
-
-	
-
-
-
-};
+    (uint32_t)FPU_IRQHandler };
 void Reset_Handler(){
 
 }

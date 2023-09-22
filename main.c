@@ -151,20 +151,20 @@ __attribute ((naked)) void init_scheduler_stack(uint32_t start_of_stack){
 
 void HardFault_Handler(void)
 {
-	printf("Exception : Hardfault\n");
+	//printf("Exception : Hardfault\n");
 	while(1);
 }
 
 
 void MemManage_Handler(void)
 {
-	printf("Exception : MemManage\n");
+	//printf("Exception : MemManage\n");
 	while(1);
 }
 
 void BusFault_Handler(void)
 {
-	printf("Exception : BusFault\n");
+	//printf("Exception : BusFault\n");
 	while(1);
 }
 void save_psp(uint32_t current_stack_psp){
