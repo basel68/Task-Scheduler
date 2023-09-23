@@ -6,8 +6,8 @@ CFLAGS=-mthumb \
 	-std=gnu11\
 	-O0 \
 	-Wall
-LFLAGS= -mcpu=$(MACH) -mthumb -mfloat-abi=soft --specs=nano.specs -T stm32_ls.ld -Wl,-Map=final.map
-LFLAGS_SH= -mcpu=$(MACH) -mthumb -mfloat-abi=soft --specs=rdimon.specs -T stm32_ls.ld -Wl,-Map=final.map
+LFLAGS= -mcpu=$(MARCH) -mthumb -mfloat-abi=soft --specs=nano.specs -T Linker_Script.ld -Wl,-Map=final.map
+LFLAGS_SH= -mcpu=$(MARCH) -mthumb -mfloat-abi=soft --specs=rdimon.specs -T Linker_Script.ld -Wl,-Map=final.map
 SOURCES= 	./led.c \
 		./main.c \
 		./STM32_Startup.c\
