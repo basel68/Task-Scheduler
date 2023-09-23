@@ -8,10 +8,11 @@ CFLAGS=-mthumb \
 	-Wall
 LFLAGS= -mcpu=$(MARCH) -mthumb -mfloat-abi=soft --specs=nano.specs -T Linker_Script.ld -Wl,-Map=final.map
 LFLAGS_SH= -mcpu=$(MARCH) -mthumb -mfloat-abi=soft --specs=rdimon.specs -T Linker_Script.ld -Wl,-Map=final.map
-SOURCES= 	./led.c \
-		./main.c \
-		./STM32_Startup.c\
-		./syscalls.c
+SOURCES= 	./src/led.c \
+		./src/main.c \
+		./src/STM32_Startup.c\
+		./src/syscalls.c
+
 
 OBJS=$(SOURCES:.c=.o)
 

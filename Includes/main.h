@@ -7,7 +7,7 @@
 
 #ifndef MAIN_H_
 #define MAIN_H_
-
+#include <stdint.h>
 #define TASK_STACK_SIZE 1024U
 #define SCHEDULER_STACK_SIZE 1024U
 

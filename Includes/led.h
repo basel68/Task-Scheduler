@@ -1,12 +1,3 @@
-/*
- * led.h
- *
- *  Created on: Sep 19, 2023
- *      Author: Lenovo
- */
-
-#ifndef LED_H_
-#define LED_H_
 
 /*
  * led.h
@@ -15,8 +6,12 @@
  *      Author: Bassel
  */
 
+#ifndef LED_H_
+#define LED_H_
 
 
+
+#include <stdint.h>
 #define LED_GREEN  12
 #define LED_ORANGE 13
 #define LED_RED    14
