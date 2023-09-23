@@ -6,10 +6,12 @@ CFLAGS=-mthumb \
 	-std=gnu11\
 	-O0 \
 	-Wall
-LFLAGS= -nostdlib -T Linker_Script.ld -Wl,-Map=final.map
+LFLAGS= -mcpu=$(MACH) -mthumb -mfloat-abi=soft --specs=nano.specs -T stm32_ls.ld -Wl,-Map=final.map
+LFLAGS_SH= -mcpu=$(MACH) -mthumb -mfloat-abi=soft --specs=rdimon.specs -T stm32_ls.ld -Wl,-Map=final.map
 SOURCES= 	./led.c \
 		./main.c \
-		./STM32_Startup.c
+		./STM32_Startup.c\
+		./syscalls.c
 
 OBJS=$(SOURCES:.c=.o)
 
@@ -17,10 +19,13 @@ OBJS=$(SOURCES:.c=.o)
 	$(CC) $(CFLAGS) $^
 	
 Compile-ALL:$(OBJS)
+SH_exec.elf:$(OBJS)
+	$(CC) $(LFLAGS_SH) $^ -o $@
 Exec.elf:$(OBJS)
 	$(CC) $(LFLAGS) $^ -o $@
 
 clean:
 	rm -rf *.o *.elf 
-
+load:
+	openocd -f board/stm32f4discovery.cfg 
 
