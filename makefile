@@ -1,6 +1,7 @@
 CC=arm-none-eabi-gcc
 MARCH=cortex-m4
 CFLAGS=-mthumb \
+	$(INCLUDES)\
 	-c\
 	-mcpu=$(MARCH)\
 	-std=gnu11\
@@ -13,10 +14,14 @@ SOURCES= 	./src/led.c \
 		./src/STM32_Startup.c\
 		./src/syscalls.c
 
+OBJ_DIR=./src
 
-OBJS=$(SOURCES:.c=.o)
+ OBJS=$(SOURCES:.c=.o)
 
-%.o:%.c
+
+# OBJS=$(addprefix $(OBJ_DIR)/, $(notdir $(SOURCES:.c=.o)))
+
+$(OBJ_DIR)/%.o:%.c
 	$(CC) $(CFLAGS) $^
 	
 Compile-ALL:$(OBJS)

@@ -20,11 +20,10 @@
 #include <stdio.h>
 #include "../Includes/main.h"
 #include "../Includes/led.h"
-#if !defined(__SOFT_FP__) && defined(__ARM_FP)
-  #warning "FPU is not initialized, but the project is compiling for an FPU. Please initialize the FPU before use."
-#endif
 uint8_t current_task=1;
 uint32_t g_tick_count=0;
+//uint32_t task_handlers[MAX_TASKS];
+//uint32_t task_psp[MAX_TASKS]={TASK1_STACK_START,TASK2_STACK_START,TASK3_STACK_START,TASK4_STACK_START};
 
 /* This is a task control block carries private information of each task */
 typedef struct
@@ -35,19 +34,17 @@ typedef struct
 	void (*task_handler)(void);
 }TCB_t;
 TCB_t user_tasks[MAX_TASKS];
-
-//semihosting init function 
-extern void initialise_monitor_handles(void);
 int main(void)
 {
 	enable_processor_faults();
-	initialise_monitor_handles();
 	init_scheduler_stack(SCHEDULER_STACK_START);
 	init_task_stack();
 	led_init_all();
 	init_systick_timer(TICK_HZ);// Starting the systick timer
 	change_msp_to_psp();
-	void Task1();
+	Task1();
+	for(;;);
+
 }
 
 void idle_task(void)
@@ -65,7 +62,7 @@ void enable_processor_faults(){
 uint32_t get_psp_value(){
 	return user_tasks[current_task].psp_value;
 }
-__attribute ((naked)) void change_msp_to_psp(){
+__attribute__ ((naked)) void change_msp_to_psp(){
 	 //1. initialize the PSP with TASK1 stack start address
 
 		//get the value of psp of current_task
@@ -117,7 +114,11 @@ void init_systick_timer(uint32_t tick_hz){
 	uint32_t *pCSR=(uint32_t*)SYST_CSR;//address of SysTick Control and Status Register
 	uint32_t *pRVR=(uint32_t*)SYST_RVR;//address of SysTick Reload Value Register
 //	uint32_t *pCVR=(uint32_t*)SYST_CVR;//address of SysTick Current Value Register
-	*pCSR |=7;// activating first 3 bits which are used for counter enable,exception request,taking processor freq.
+//	*pCSR |=7;// activating first 3 bits which are used for counter enable,exception request,taking processor freq.
+	 *pCSR |= ( 1 << 1); //Enables SysTick exception request:
+	 *pCSR |= ( 1 << 2);  //Indicates the clock source, processor clock source
+	    //enable the systick
+	*pCSR |= ( 1 << 0); //enables the counter
 	*pRVR &=~(0x00FFFFFF);
 	*pRVR |=(count);//set count value in reload register
 
@@ -144,7 +145,7 @@ void task_delay(uint32_t tick_count)
 	//enable interrupt
 	INTERRUPT_ENABLE();
 }
-__attribute ((naked)) void init_scheduler_stack(uint32_t start_of_stack){
+__attribute__ ((naked)) void init_scheduler_stack(uint32_t start_of_stack){
 	__asm volatile("MSR MSP, %0 "::"r" (start_of_stack):);
 	__asm volatile("BX LR");
 
@@ -174,7 +175,8 @@ void save_psp(uint32_t current_stack_psp){
 }
 
 void get_next_task_id(){
-	int state = TASK_BLOCKED_STATE;
+
+		int state = TASK_BLOCKED_STATE;
 
 		for(int i= 0 ; i < (MAX_TASKS) ; i++)
 		{
@@ -187,21 +189,45 @@ void get_next_task_id(){
 
 		if(state != TASK_READY_STATE)
 			current_task = 0;
+
+
 }
-__attribute((naked)) void PendSV_Handler(void)
+
+__attribute__((naked)) void PendSV_Handler(void)
 {
-	__asm("PUSH {LR}");
-//save last running task stack info
-	__asm("MRS R0 , PSP");
-	__asm("STMDB R0!,{R4,R11}");
-	__asm("BL save_psp ");
-//retrieve next task info
-	__asm("BL get_next_task_id");
-	__asm("BL get_psp_value");
-	__asm("LDMIA R0!,{R4-R11}");
-	__asm("MSR PSP,R0");
-	__asm("POP {LR}");
-	__asm("BX LR");
+
+	/*Save the context of current task */
+
+	//1. Get current running task's PSP value
+	__asm volatile("MRS R0,PSP");
+	//2. Using that PSP value store SF2( R4 to R11)
+	__asm volatile("STMDB R0!,{R4-R11}");
+
+	__asm volatile("PUSH {LR}");
+
+	//3. Save the current value of PSP
+    __asm volatile("BL save_psp");
+
+
+
+	/*Retrieve the context of next task */
+
+	//1. Decide next task to run
+    __asm volatile("BL get_next_task_id");
+
+	//2. get its past PSP value
+	__asm volatile ("BL get_psp_value");
+
+	//3. Using that PSP value retrieve SF2(R4 to R11)
+	__asm volatile ("LDMIA R0!,{R4-R11}");
+
+	//4. update PSP and exit
+	__asm volatile("MSR PSP,R0");
+
+	__asm volatile("POP {LR}");
+
+	__asm volatile("BX LR");
+
 
 
 }
@@ -271,6 +297,7 @@ void Task3(void){
 void Task4(void){
 	while(1)
 		{
+			printf("GG");
 			led_on(LED_RED);
 			task_delay(125);
 			led_off(LED_RED);

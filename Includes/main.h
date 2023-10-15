@@ -29,7 +29,7 @@
 #define SYST_RVR 0xE000E014
 #define SYST_CVR 0xE000E018
 
-#define MAX_TASKS 4
+#define MAX_TASKS 5
 #define dummy_xPSR 0x01000000
 
 #define TASK_READY_STATE  0x00
